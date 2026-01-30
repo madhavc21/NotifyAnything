@@ -1,7 +1,8 @@
 # main.py
 import sys
-from select import create_overlay
+from overlay import create_overlay
 from monitor import monitor
+from capture import capture_selected_bmp
 
 def get_region(start: tuple, end: tuple):
     """
@@ -38,5 +39,10 @@ if not p1 or not p2:
 
 x,y,w,h = get_region(p1,p2)
 
-monitor(x,y,w,h)
+status = monitor(x,y,w,h)
+if status=='change':
+    print('change')
+    capture_selected_bmp(x,y,w,h)
+else:
+    print('timeout')
 

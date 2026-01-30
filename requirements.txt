@@ -1,3 +1,4 @@
 flask
 requests
 pywin32
+pystray
