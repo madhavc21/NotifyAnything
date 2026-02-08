@@ -5,8 +5,14 @@ import win32api
 import sys
 
 import hashlib
+from pathlib import Path
 
-def capture_selected_bmp(x, y, w, h, save: bool = True, save_name: str = "capture.bmp"):
+ROOT = Path(__file__).parent.parent
+ASSETS = ROOT / "assets"
+ASSETS.mkdir(exist_ok=True)
+save_path = ASSETS / "capture.bmp"
+
+def capture_selected_bmp(x, y, w, h, save: bool = True, save_name: str = save_path):
     hdc_screen = win32gui.GetDC(0)                      # A DC, Device Context is drawing surface, ie the graphical context you want. In this case we 0 -> desktop window; This returns an HDC (a raw handle) that lets me READ pixels from the screen context.
     hdc_screen_obj = win32ui.CreateDCFromHandle(hdc_screen) # wraps the same raw DC into a python object, enabling function calls on it. hdc_screen is now an reuseable DC object. Creates a Python useable DC obj from raw handle
     bmp = win32ui.CreateBitmap()                        # Creates/initializes an empty bitmap obj, no pixel memory

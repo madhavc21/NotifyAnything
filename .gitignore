@@ -2,3 +2,4 @@
 .env
 notebook.ipynb
 .notify
+assets/*
