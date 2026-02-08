@@ -3,8 +3,6 @@ import win32ui
 import win32con
 import win32api
 import sys
-import ctypes
-ctypes.windll.user32.SetProcessDPIAware() # To prevent DPI scaling, causing mismatch bw mouse coords and screen coords
 
 import hashlib
 

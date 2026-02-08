@@ -1,3 +1,7 @@
+"""
+WIP: LAN server to receive notifications from other devices on the same network
+"""
+
 from flask import Flask, request
 from datetime import datetime
 

@@ -5,13 +5,13 @@ import win32gui
 import win32api
 import win32event
 import winerror
-
+import ctypes
 import sys
 
-from overlay import create_overlay as select_region
-from monitor import monitor as monitor_region
-from tray import start_tray
-from notify import notify
+from window.overlay import OverlayWindow
+from observer.monitor import monitor as monitor_region
+from services.tray import start_tray
+from services.notify import notify
 
 import threading
 from enum import Enum
@@ -105,7 +105,8 @@ def on_hotkey():
         return
     
     state = AppState.SELECTING
-    region = select_region()
+    overlay = OverlayWindow()
+    region = overlay.create_overlay()
 
     # region = (None,None) is truthy in python
     if not region or not region[0] or not region[1]:
@@ -138,6 +139,8 @@ def on_hotkey():
     ).start()
 
 def main():
+    ctypes.windll.user32.SetProcessDPIAware() # To prevent DPI scaling, causing mismatch bw mouse coords and screen coords
+
     mutex = win32event.CreateMutex(
         None,
         False,
@@ -161,6 +164,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-# TODO: BUG: clicking a point in overlay seems to create a region where picel change is not detected
-# state gets stuck in monitoring, since it cant exit, force exits only at timeout
-# there should be a min size req of selection box

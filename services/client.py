@@ -1,3 +1,7 @@
+"""
+WIP: LAN client to send notifications to other devices on the same network
+"""
+
 import requests
 import time
 from datetime import datetime

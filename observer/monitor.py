@@ -1,6 +1,6 @@
 import time
 
-from capture import get_hash
+from observer.capture import get_hash
 
 def monitor(x,y,w,h, state_callback = None, event_callback = None, interval: int = 3, auto_off: int = 2000):
     start_time = time.time()
