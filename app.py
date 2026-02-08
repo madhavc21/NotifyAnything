@@ -1,3 +1,5 @@
+from typing import Literal
+
 import win32con
 import win32gui
 import win32api
@@ -85,6 +87,13 @@ def get_region(start: tuple, end: tuple):
 
     return left, top, width, height
 
+def on_event(event_type: Literal['change','timeout','invalid']):
+    """
+    Wrap notify function to ensure the event_type is passed in as ntype keyword argument.
+    Future safety if notify function signature changes
+    """
+    notify(ntype=event_type)
+
 def reset_state():
     global state
     state = AppState.IDLE
@@ -100,20 +109,33 @@ def on_hotkey():
 
     # region = (None,None) is truthy in python
     if not region or not region[0] or not region[1]:
-        notify(ntype='invalid')
+        on_event('invalid')
         reset_state()
         return
-    if region:
-        state = AppState.MONITORING
-        # Threading to ensure starting an observer does not block the entire app
-        # Creates the observer in a seperate daemon thread from the main app
-        x,y,w,h = get_region(region[0], region[1])
-        threading.Thread(
-            name="Thread-observer#0",
-            target=monitor_region,
-            args=[x,y,w,h,reset_state], 
-            daemon=True # daemon type threads exit along with the app. If not the app wont close till the observerThread closes
-        ).start()
+
+    x,y,w,h = get_region(region[0], region[1])
+
+    if w<5 or h<5: # if w or h is less than 5px, invalid region
+        on_event('invalid')
+        reset_state()
+        return
+
+    state = AppState.MONITORING
+    # Threading to ensure starting an observer does not block the entire app
+    # Creates the observer in a seperate daemon thread from the main app
+    threading.Thread(
+        name="Thread-observer#0",
+        target=monitor_region,
+        kwargs={
+            "x":x,
+            "y":y,
+            "w":w,
+            "h":h,
+            "state_callback":reset_state,
+            "event_callback":on_event
+        }, 
+        daemon=True # daemon type threads exit along with the app. If not the app wont close till the observerThread closes
+    ).start()
 
 def main():
     mutex = win32event.CreateMutex(
