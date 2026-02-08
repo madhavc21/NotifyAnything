@@ -1,5 +1,6 @@
-flask
-requests
-pywin32
-pystray
-plyer
+flask==3.1.2
+requests==2.32.5
+pywin32==311
+pystray==0.19.5
+plyer==2.1.0
+pyinstaller==6.18.0

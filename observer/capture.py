@@ -32,7 +32,7 @@ def capture_selected_bmp(x, y, w, h, save: bool = True, save_name: str = save_pa
     # BitBlt reads pixels from source dc and writes them directly into the destination DC's selcted bitmap
     
     if save:
-        bmp.SaveBitmapFile(hdc_mem, save_name)          # Saves the bmp at address hdc_mem to a disk address
+        bmp.SaveBitmapFile(hdc_mem, str(save_name))          # Saves the bmp at address hdc_mem to a disk address
 
     hdc_mem.DeleteDC()                                  # IMPORTANT: Delete the mem DC
     hdc_screen_obj.DeleteDC()                           # IMPROTANT: Delete the screen DC wrapper
@@ -41,6 +41,6 @@ def capture_selected_bmp(x, y, w, h, save: bool = True, save_name: str = save_pa
     return bmp
 
 def get_hash(x,y,w,h):
-    bmp = capture_selected_bmp(x,y,w,h)                 # Only time we call capture rect in monitoring is to compare hash
+    bmp = capture_selected_bmp(x,y,w,h, save=False)                 # Don't save files during background monitoring!
     bits = bmp.GetBitmapBits(True) 
     return hashlib.sha256(bits).digest()                # .digest returns a fixed 32 byte hash value, without it we just get a hash object

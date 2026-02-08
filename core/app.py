@@ -1,6 +1,8 @@
 from typing import Literal
+import os
 
 import win32con
+import win32com.client
 import win32gui
 import win32api
 import win32event
@@ -12,6 +14,7 @@ from window.overlay import OverlayWindow
 from observer.monitor import monitor as monitor_region
 from services.tray import start_tray
 from services.notify import notify
+from services.startup import run_on_startup
 
 import threading
 from enum import Enum
@@ -87,7 +90,7 @@ def get_region(start: tuple, end: tuple):
 
     return left, top, width, height
 
-def on_event(event_type: Literal['change','timeout','invalid']):
+def on_event(event_type: Literal['startup','change','timeout','invalid']):
     """
     Wrap notify function to ensure the event_type is passed in as ntype keyword argument.
     Future safety if notify function signature changes
@@ -139,8 +142,10 @@ def on_hotkey():
     ).start()
 
 def main():
+    run_on_startup(True)
     ctypes.windll.user32.SetProcessDPIAware() # To prevent DPI scaling, causing mismatch bw mouse coords and screen coords
 
+    on_event("startup")
     mutex = win32event.CreateMutex(
         None,
         False,

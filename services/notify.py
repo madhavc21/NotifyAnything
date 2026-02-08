@@ -14,3 +14,7 @@ def notify(ntype: Literal['change','timeout','invalid']):
         notification.notify(
             title='Invalid Region', message='Invalid region selected, select a larger region', app_name='NotifyAnything'
         )
+    elif ntype=='startup':
+        notification.notify(
+            title='Startup', message='NotifyAnything started successfully', app_name='NotifyAnything'
+        )

@@ -2,4 +2,6 @@
 .env
 notebook.ipynb
 .notify
-assets/*
+dist/
+build/
+NotifyAnything.spec
