@@ -13,6 +13,7 @@ class OverlayWindow:
         self.start_pos = None # The first click pos (start of rect), mutated only once in wnd_proc, when wnd_proc is called with LBUTTONDOWN message
         self.end_pos = None # The mouse release pos (end of rect), continuously mutated in wnd_proc as long as user is dragging cursor, till BUTTONUP, ie; wnd_proc is called while selecting == True, and with msg == WM_MOUSEMOVE
         self.selecting = False # The selection/mouse drag check, mutated in wnd_proc first at BUTTONDOWN, to indicate start of selection, mutated back to false when wnd_proc called w BUTTONUP message
+        self.target_hwnd = 0 # Defaults to entire window
 
     def wnd_proc(self, hwnd, msg, wparam, lparam):
         """
@@ -45,6 +46,18 @@ class OverlayWindow:
         if msg == win32con.WM_LBUTTONUP:
             self.selecting = False
             self.end_pos = win32api.GetCursorPos()
+            midpoint = tuple(((x+y)//2) for x,y in zip(self.start_pos,self.end_pos)) # get the midpoint of the selection
+            
+            # We must hide the overlay now that it is no longer needed, and to allow retreival of the correct target window handle
+            win32gui.ShowWindow(hwnd, win32con.SW_HIDE)
+
+            self.target_hwnd = win32gui.WindowFromPoint( # Retrieves a handle to the window that contains the specified point.
+                midpoint # use the midpoint to decide the target window
+                ) # The overlay is active till the PostQuitMessage below, making it the topmost window
+            # Our point falls on the overlay, which will get destroyed soon, leaving us with an invalid handle to
+            # a destroyed window; thus it is important to hide it before this method
+            window_text = win32gui.GetWindowText(self.target_hwnd)
+            print(f"Targeting Window: {window_text} (HWND: {self.target_hwnd}) (og_HWND: {hwnd})")
             print(f"END: {self.end_pos}")
             win32gui.PostQuitMessage(0) # Exists message loop
             return 0
@@ -112,4 +125,4 @@ class OverlayWindow:
         win32gui.UnregisterClass(wc.lpszClassName, None)
         
         # Return after user finishes interaction
-        return self.start_pos, self.end_pos
+        return (self.start_pos, self.end_pos), self.target_hwnd

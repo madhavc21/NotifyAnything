@@ -3,6 +3,7 @@ import win32ui
 import win32con
 import win32api
 import sys
+import time
 
 import hashlib
 from pathlib import Path
@@ -12,15 +13,20 @@ ASSETS = ROOT / "assets"
 ASSETS.mkdir(exist_ok=True)
 save_path = ASSETS / "capture.bmp"
 
-def capture_selected_bmp(x, y, w, h, save: bool = True, save_name: str = save_path):
-    hdc_screen = win32gui.GetDC(0)                      # A DC, Device Context is drawing surface, ie the graphical context you want. In this case we 0 -> desktop window; This returns an HDC (a raw handle) that lets me READ pixels from the screen context.
+def capture_selected_bmp(x, y, w, h, target_hwnd, save: bool = True, save_name: str = save_path):
+    # TODO: Adjust the user selected region to fit relative to the target window DC
+    # When passing hwnd to GetDC, the coordinate plan is now relative to the target's private
+    # window, not the entire screen, the user selection coordinates are relative to the entire screen
+    # left, top, right, bot = win32gui.GetClientRect(hwnd) # to get target window coords
+
+    hdc_screen = win32gui.GetWindowDC(target_hwnd)        # A DC, Device Context is drawing surface, ie the graphical context you want. In this case we 0 -> desktop window; This returns an HDC (a raw handle) that lets me READ pixels from the screen context.
     hdc_screen_obj = win32ui.CreateDCFromHandle(hdc_screen) # wraps the same raw DC into a python object, enabling function calls on it. hdc_screen is now an reuseable DC object. Creates a Python useable DC obj from raw handle
     bmp = win32ui.CreateBitmap()                        # Creates/initializes an empty bitmap obj, no pixel memory
     bmp.CreateCompatibleBitmap(hdc_screen_obj, w, h)    # Allocates pixel memory ie; properties, h,w,color compatible w screen
 
     hdc_mem = hdc_screen_obj.CreateCompatibleDC()       # Creates an invisible DC/canvas in memory that follows the same pixel rules as hdc_screen, (ie pixel depth etc.). This is to ensure source and destination are compatible, and pixel conversion is not required when pixel transfer happens. Returns a python DC obj
     hdc_mem.SelectObject(bmp)                           # Attaches the template bmp we created to the mem dc, ie; specifying a place where writes to this dc should go
-
+    
                                                         # BitBlockTransfer; Transfers pixels from source to destination:
     hdc_mem.BitBlt(                                     # dest.BitBlt(
         (0, 0),                                             # starting from top-left of dest bitmap
@@ -40,7 +46,7 @@ def capture_selected_bmp(x, y, w, h, save: bool = True, save_name: str = save_pa
 
     return bmp
 
-def get_hash(x,y,w,h):
-    bmp = capture_selected_bmp(x,y,w,h, save=False)                 # Don't save files during background monitoring!
+def get_hash(x,y,w,h, target_hwnd):
+    bmp = capture_selected_bmp(x,y,w,h, target_hwnd, save=False, save_name=f"check_{time.time()}.png")                 # Don't save files during background monitoring!
     bits = bmp.GetBitmapBits(True) 
     return hashlib.sha256(bits).digest()                # .digest returns a fixed 32 byte hash value, without it we just get a hash object

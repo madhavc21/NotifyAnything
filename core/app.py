@@ -109,7 +109,7 @@ def on_hotkey():
     
     state = AppState.SELECTING
     overlay = OverlayWindow()
-    region = overlay.create_overlay()
+    region, target_hwnd = overlay.create_overlay()
 
     # region = (None,None) is truthy in python
     if not region or not region[0] or not region[1]:
@@ -135,6 +135,7 @@ def on_hotkey():
             "y":y,
             "w":w,
             "h":h,
+            "target_hwnd": target_hwnd,
             "state_callback":reset_state,
             "event_callback":on_event
         }, 

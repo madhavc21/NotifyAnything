@@ -2,9 +2,9 @@ import time
 
 from observer.capture import get_hash
 
-def monitor(x,y,w,h, state_callback = None, event_callback = None, interval: int = 3, auto_off: int = 2000):
+def monitor(x,y,w,h, target_hwnd, state_callback = None, event_callback = None, interval: int = 3, auto_off: int = 2000):
     start_time = time.time()
-    prev_hash = get_hash(x,y,w,h)
+    prev_hash = get_hash(x,y,w,h, target_hwnd)
 
     while True:
         time.sleep(interval)
@@ -20,7 +20,7 @@ def monitor(x,y,w,h, state_callback = None, event_callback = None, interval: int
 
             return "timeout"
 
-        curr_hash = get_hash(x,y,w,h)
+        curr_hash = get_hash(x,y,w,h, target_hwnd)
         if prev_hash != curr_hash:
             print("CHANGE DETECTED")
             if event_callback:
