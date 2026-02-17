@@ -90,6 +90,24 @@ def get_region(start: tuple, end: tuple):
 
     return left, top, width, height
 
+def get_region_wrt_target(xr, yr, target_hwnd):
+    """
+    Gets the origin nomalized screen relative points of the selected region
+    
+    :param xr: x coordinate of the selection start
+    :type xr: int
+    :param yr: y coordinate of the selection start
+    :type yr: int
+    :param target_hwnd: handle of the target window
+    :type target_hwnd: int
+    """
+    # xc,yc are screen coordinates of the window's top-left
+    xc, yc, _, _ = win32gui.GetWindowRect(target_hwnd)
+    return (
+        max(0, xr - xc), # Relative X offset
+        max(0, yr - yc)  # Relative Y offset
+    )
+    
 def on_event(event_type: Literal['startup','change','timeout','invalid']):
     """
     Wrap notify function to ensure the event_type is passed in as ntype keyword argument.
@@ -123,6 +141,9 @@ def on_hotkey():
         on_event('invalid')
         reset_state()
         return
+        
+    xt,yt = win32gui.ScreenToClient(target_hwnd, (x,y)) 
+    # xt,yt = get_region_wrt_target(x,y, target_hwnd) # redundant; ScreenToClient does the same thing
 
     state = AppState.MONITORING
     # Threading to ensure starting an observer does not block the entire app
@@ -131,8 +152,8 @@ def on_hotkey():
         name="Thread-observer#0",
         target=monitor_region,
         kwargs={
-            "x":x,
-            "y":y,
+            "x":xt,
+            "y":yt,
             "w":w,
             "h":h,
             "target_hwnd": target_hwnd,

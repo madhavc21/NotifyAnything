@@ -41,11 +41,13 @@ im = Image.frombuffer(
     (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
     bmpstr, 'raw', 'BGRX', 0, 1)
 
-win32gui.DeleteObject(saveBitMap.GetHandle())
-saveDC.DeleteDC()
-mfcDC.DeleteDC()
-win32gui.ReleaseDC(hwnd, hwndDC)
+# win32gui.DeleteObject(saveBitMap.GetHandle())
+# saveDC.DeleteDC()
+# mfcDC.DeleteDC()
+# win32gui.ReleaseDC(hwnd, hwndDC)
 
 if result == 1:
     #PrintWindow Succeeded
     im.save("test.png")
+
+bits = saveBitMap.GetBitmapBits(True) 
