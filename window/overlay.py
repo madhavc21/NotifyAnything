@@ -50,12 +50,16 @@ class OverlayWindow:
             
             # We must hide the overlay now that it is no longer needed, and to allow retreival of the correct target window handle
             win32gui.ShowWindow(hwnd, win32con.SW_HIDE)
-
             self.target_hwnd = win32gui.WindowFromPoint( # Retrieves a handle to the window that contains the specified point.
                 midpoint # use the midpoint to decide the target window
                 ) # The overlay is active till the PostQuitMessage below, making it the topmost window
             # Our point falls on the overlay, which will get destroyed soon, leaving us with an invalid handle to
             # a destroyed window; thus it is important to hide it before this method
+
+            # check if the window is the true target, or a child window, necessary to ensure relative coordinates are calculated correctly
+            parent_hwnd = win32gui.GetParent(self.target_hwnd)
+            if parent_hwnd:
+                self.target_hwnd = parent_hwnd
             window_text = win32gui.GetWindowText(self.target_hwnd)
             print(f"Targeting Window: {window_text} (HWND: {self.target_hwnd}) (og_HWND: {hwnd})")
             print(f"END: {self.end_pos}")

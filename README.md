@@ -49,6 +49,3 @@ python build.py
 - `window/`: Selection overlay implementation.
 - `services/`: Registry and notification wrappers.
 - `assets/`: Image data and icons.
-
-## License
-MIT

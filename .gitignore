@@ -1,7 +1,10 @@
 \__pycache__
 .env
-notebook.ipynb
+notebooks/
 .notify
 dist/
 build/
 NotifyAnything.spec
+
+assets/
+

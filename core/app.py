@@ -102,7 +102,8 @@ def get_region_wrt_target(xr, yr, target_hwnd):
     :type target_hwnd: int
     """
     # xc,yc are screen coordinates of the window's top-left
-    xc, yc, _, _ = win32gui.GetWindowRect(target_hwnd)
+    xc, yc, r , b = win32gui.GetWindowRect(target_hwnd)
+    print(f"Selected region relative to target: ({xr}, {yr}, {r-xc}, {b-yc})")
     return (
         max(0, xr - xc), # Relative X offset
         max(0, yr - yc)  # Relative Y offset
@@ -144,6 +145,7 @@ def on_hotkey():
         
     xt,yt = win32gui.ScreenToClient(target_hwnd, (x,y)) 
     # xt,yt = get_region_wrt_target(x,y, target_hwnd) # redundant; ScreenToClient does the same thing
+    print(f"Selected region relative to target: ({xt}, {yt})")
 
     state = AppState.MONITORING
     # Threading to ensure starting an observer does not block the entire app
